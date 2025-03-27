@@ -36,6 +36,98 @@
   * 이 방법은 "Escape Back"
 * {} 중괄호를 사용해서 변수나 표현식을 사용자에게 표시하도록 하는 것
 
+**조건부 렌더링**
+* React에서 조건문을 작성하는 데에는 특별한 문법이 필요없음.
+* 일반적인 JavaScript 코드를 작성할 때 사용하는 것과 동일한 방법을 사용
+  * if-else 문
+  * 삼항 연산자
+  * 이항 연산자
+
+**리스트 렌더링**
+* 컴포넌트 리스트를 렌더링하기 위해서는 `for()문 및 map()함수`와 같은 JavaScript 기능을 사용
+* <li>에 key 속성이 있다.
+* 목록을 사용할 때 각 항목에 대해 고유하게 식별하는 문자열 또는 숫자를 전달해야 한다.
+* 항목을 삽입, 삭제 또는 재정렬할 때 어떤 일이 일어났는지 알기 위해 key를 사용
+  * 이 것을 `key props`라 한다.
+
+**4주차 실습**
+~~~js
+//About.js
+export default function AboutPage() {
+    return (
+        <>
+            <h1>About Page</h1>
+            <p>Hello!!!</p>
+        </>
+    )
+
+}
+~~~
+![alt text](image/image4.png)
+
+~~~js
+//MyButton.js
+export default function MyButton() {
+    return (
+      <button>I'm My button component</button>
+    )
+  }
+  
+~~~
+![alt text](image/image5.png)
+
+~~~js
+//ButtonLib.js
+function Button1() {
+    return (
+        <button>Button1</button>
+    )
+}
+
+function Button2() {
+    return (
+        <button>Button2</button>
+    )
+}
+
+function Button3() {
+    return (
+        <button>Button3</button>
+    )
+}
+
+export {Button1, Button2, Button3}
+~~~
+![alt text](image/image6.png)
+
+~~~js
+//App.js
+import MyB from "./MyButton"
+import { Button1, Button3 } from "./ButtonLib"
+import AP from "./AboutPage"
+import Profile from "./Profile"
+import './App.css'
+import SL from "./ShoppingList"
+
+export default function App() {
+  return (
+    <div className ='main'>
+      <h1>Hello React</h1>
+      <MyB /> <br />
+      <Button1 />&nbsp;
+      <Button3 />
+      <AP />
+      <Profile />
+      <SL />
+    </div>
+  )
+}
+~~~
+![alt text](image/image7.png)
+
+**App.js 실행결과**
+![alt text](image/image8.png)
+
 ## 2025.03.20 3주차
 
 ### React project의 구조 및 역할
