@@ -1,5 +1,23 @@
 # 202130311 안상하 
 
+## 2025.03.27 4주차
+**component의 생성 및 중첩**
+* component는 고유한 로직과 모양을 가진 UI의 일부
+* component는 버튼처럼 작거나 전체 페이지처럼 클 수도 있음
+* component는 마크업을 반환(return)하는 JavaScript함수
+
+**export default 키워드**
+* 파일 내의 component중 기본 component를 지정
+* 이 키워드의 사용도 JavaScript문법
+
+**export default와 export의 차이**
+* Named Exports(export)
+  * 하나의 파일 안에 여러 개의 component가 있을 때 사용
+  * component를 사용하는 쪽에서는 component의 정확한 이름을 명시해야 함
+* Default Exports(export default)
+  * 하나의 파일 안에 하나의 component만 내보내는 경우
+  * component를 사용하는 쪽은 자유롭게 이름을 쓸 수 있음
+
 ## 2025.03.20 3주차
 
 ### React project의 구조 및 역할
