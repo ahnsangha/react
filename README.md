@@ -18,6 +18,24 @@
   * 하나의 파일 안에 하나의 component만 내보내는 경우
   * component를 사용하는 쪽은 자유롭게 이름을 쓸 수 있음
 
+**JSX로 마크업 작성**
+* 작성된 코드의 문법은 JSX이다.
+* 반드시 사용해야 하는 것은 아니지만 React 프로젝트에서는 편의성을 위해 사용한다.
+* JSX는 HTML보다 더욱 엄격한 문법을 적용
+* JSX에서는 `<br />` 같이 싱글 태그라도 태그를 닫아야 한다.
+* 여러 개의 component를 `<div>...</div>` , `bean<>...</>` wrapping 해야 한다.
+
+**스타일 추가**
+* React에서는 className으로 CSS클래스 지정
+* className은 HTML의 CSS속성과 동일한 방식으로 동작
+* CSS 규칙은 별도의 CSS파일에 작성. React는 CSS파일을 추가하는 방법을 규정하지 않는다.
+
+**데이터 표시**
+* JSX를 사용하면 JavaScript에 마크업을 넣을 수 있다.
+* JSX 코드 내에서 JavaScript로 탈출하여 변수나 표현식을 사용하는 것 
+  * 이 방법은 "Escape Back"
+* {} 중괄호를 사용해서 변수나 표현식을 사용자에게 표시하도록 하는 것
+
 ## 2025.03.20 3주차
 
 ### React project의 구조 및 역할
