@@ -1,5 +1,80 @@
 # 202130311 안상하 
 
+## 2025.04.03 5주차
+**이벤트에 응답**
+* component 내부에 event handler 함수를 선언하면 event에 응답할 수 있음
+* onclick={handclick}의 끝에는 소괄호`()`가 없음
+* 함수를 호출하지 않고 전달하면 끝
+* React는 사용자가 버튼을 클릭할 때 이벤트 핸들러를 호출
+
+**화면 업데이트**
+* component가 특정 정보를 '기억'해 두었다가 표시하기를 원하는 경우가 있다
+  * 예를 들면 버튼이 클릭 된 횟수
+* 이렇게 하려면 component에 state를 추가
+  * React에서 useState를 import
+    * component 내부에 state 변수 선언 가능
+
+**Hook**
+* use로 시작하는 함수를 `Hook` 이라 한다.
+* useState는 React에서 제공하는 내장 Hook
+* 다른 내장 Hook은 API 참고서 에서
+* 기존의 것들을 조합해 자신만의 Hook을 만들 수 있음
+
+**Hook 사용 규칙**
+* 최상위에서만 호출
+* if, for, while등의 블록 내부에서 호출 불가능
+  * 조건문 내부에서 호출 시 실행 순서가 달라질 수 있음
+* React 함수형 component 또는 사용자 hook 내부에서만 사용 가능
+* 일반적인 JavaScirpt 함수에서 useState, useEffect 등의 Hook 사용 불가능
+
+**Hook 제한이 필요한 이유**
+* React 동작을 예측 가능하고 안정성을 높이기 위해
+  1. rendering 순서를 보장하기 위해
+  2. 불필요한 사이드 이펙트 방지
+
+**function형 컴포넌트에서만 Hook을 사용하는 이유**
+* React는 component의 상태 관리(lifecycle)와 로직을 더 간결하기 위해 Hooks를 도입
+  * 따라서 React는 function형 component를 권장
+
+**5주차 실습**
+
+~~~js
+//CountState.js
+import { useState } from "react";
+
+export default function CountState() {
+    const [count, setCount] = useState(0);
+
+    function handleClick() {
+        setCount(count + 1);
+    }
+
+    return (
+        <div>
+            <button onClick={handleClick}>
+                Clicked {count} times
+            </button>
+        </div>
+    );
+}
+~~~
+![alt text](image/image9.png)
+
+~~~js
+//CountState2.js
+function CountState2({ count, onClick }) {
+
+    return (
+      <div>
+          <button onClick={onClick}>
+              Clicked {count} times
+          </button>
+      </div>
+    );
+}
+~~~
+![alt text](image/image10.png)
+
 ## 2025.03.27 4주차
 **component의 생성 및 중첩**
 * component는 고유한 로직과 모양을 가진 UI의 일부
