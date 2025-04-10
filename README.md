@@ -1,5 +1,68 @@
 # 202130311 안상하 
 
+## 2025.04.10 6주차
+**props를 통해 데이터 전달**
+* React의 component architecture를 사용해서 재사용할 수 있는 component를 만들어서 지저분하고 중복된 코드 삭제
+  * Board component를 만들고 Square component의 내용 복사
+  * Square comonent의 button을 하나만 남기고 모두 삭제
+  * Board comopnent의 button을 Square component로 교체
+  * App에서 호출하는 component를 Square에서 Board로 교체
+  * Square component를 value prop을 전달 받을 수 있도록 수정
+  ~~~js
+    function Square({ value }) {
+      return <button className="square">1</button>;
+    }
+  ~~~
+  * JavaScript 변수가 렌더링 되기 위해 value에 중괄호 추가
+  ~~~js
+    function Square({ value }) {
+      return <button className="square">{value}</button>;
+    }
+  ~~~
+
+**사용자와 상호작용하는 컴포넌트**
+  1. Square 내부에 handleClick 함수 선언
+  2. Square 컴포넌트에서 반환되는 JSX 버튼의 props에 onClick을 추가
+    * 사각형 클릭시 clicked 라는 로그 출력
+    ![alt text](image/image11.png)
+
+* 이번에는 사각형 컴포넌트가 클릭 된 것을 "기억"하고 "X" 표시로 채우기
+  * 컴포넌트는 무언가 "기억"하기 위해 state를 사용
+  * React는 상태 기억을 위해 useState라는 Hook을 제공
+  * Square의 현재 값을 state에 저장하고 Square가 클릭하면 값이 변경
+
+**useState 사용**
+  1. 파일 상단에 useState를 import
+  2. Square 컴포넌트에서 value prop을 제거, 대신 useState 사용
+  3. Square 컴포넌트 시작 부분에 useState를 호출, value라는 이름의 state 변수를 반환
+    * value 값을 저장하는 변수, setValue는 값을 변경하는 데 사용하는 함수
+    * useState에 전달된 null은 이 state 변수의 초기값으로 현재 value는 null이라는 의미
+    * 앞에서 Square 컴포넌트는 더 이상 props를 사용하지 않게 수정
+  4. Board 컴포넌트가 생성한 9개의 Square 컴포넌트에서도 value prop을 제거  
+    ![alt text](image/image12.png)  
+  5. console.log("clicked!"); -> 이벤트 핸들러를 ('X')로 변경  
+    ![alt text](image/image13.png)  
+  
+**state 끌어올리기**
+* 여기까지의 과정에서 각 Square 컴포넌트는 게임 state의 일부를 기억
+* 게임의 승자를 확인할려면 Board가 9개의 Square 컴포넌트 각각의 state를 기억해야 함
+  * state를 각 square가 아닌 부모 컴포넌트인 Board에 저장하는 것
+  * Board 컴포넌트는 각 Square에 숫자를 전달했을 때와 같이 prop를 전달하여 Square에 표시할 내용을 정할 수 있음
+    * 부모 컴포넌트에서 공유 state를 선언
+    * 부모 컴포넌트는 props를 통해 해당 state를 자식 컴포넌트에 전달
+* Board 컴포넌트를 편집해서 9개 Square에 해당하는 9개의 null의 배열을 기본값으로 하는 state 변수를 square를 선언
+* Array(9).fill(null)은 9개의 엘리먼트로 배열을 생성, 각 엘리먼트를 null로 설정
+* state 변수 squares와 함수 setSquares 선언 
+* 배열의 각 항목은 각 Square 컴포넌트의 값에 해당
+
+**component 분리**
+1. component 이름과 동일한 파일 만들기
+2. 해당 파일에 코드를 복사하고 export default 키워드를 추가
+3. 필요한 component와 useState를 추가
+4. App.js에서 해당 코드를 삭제하고, Board component를 import
+5. App.js에서 useState의 import를 제거
+6. 정상적으로 동작하는지 확인
+
 ## 2025.04.03 5주차
 **이벤트에 응답**
 * component 내부에 event handler 함수를 선언하면 event에 응답할 수 있음
