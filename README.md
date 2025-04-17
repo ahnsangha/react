@@ -2,13 +2,13 @@
 
 ## 2025.04.17 7주차
 **state 끌어올리기**
-* handleClick 함수는 JavaScript의 slice() 배열 메서드를 사용하여 squares 배열의 사본인 nextSquares를 생성
-* 그 다음 handleClick 함수는 nextSquares 배열의 첫 번째 Squares(index [0])에 X를 추가하여 업데이트
-* handleClick 함수에 업데이트할 Square의 index를 나타내는 인수 i를 추가
-* Square의 onSquareClick prop를 JSX에서 직접 handleCLick(0)으로 설정할 수 도 있지만 작동하지 않음
-  * handleClick(0) 호출은 Board 컴포넌트 렌더링의 일부가 됨
-  * handleClick(0)은 setSquares를 호출하여, Board 컴포넌트의 state를 변경하기 때문에 Boartd 컴포넌트 전체가 다시 렌더링
-  * 이 과정에서 handleClick(0) 다시 실행되기 때문에 무한 루프에 빠지게 됨
+* `handleClick` 함수는 `JavaScript`의 `slice()` 배열 메서드를 사용하여 `squares` 배열의 사본인 `nextSquares`를 생성
+* 그 다음 `handleClick` 함수는 `nextSquares` 배열의 첫 번째 `Squares(index [0])`에 `X`를 추가하여 업데이트
+* `handleClick` 함수에 업데이트할 `Square`의 index를 나타내는 인수 i를 추가
+* `Square`의 `onSquareClick prop`를 JSX에서 직접 `handleCLick(0)`으로 설정할 수 도 있지만 작동하지 않음
+  * `handleClick(0)` 호출은 `Board` 컴포넌트 렌더링의 일부가 됨
+  * `handleClick(0)`은 `setSquares`를 호출하여, `Board` 컴포넌트의 `state`를 변경하기 때문에 `Board` 컴포넌트 전체가 다시 렌더링
+  * 이 과정에서 `handleClick(0)` 다시 실행되기 때문에 무한 루프에 빠지게 됨
 * 9개의 서로 다른 함수를 정의하기에는 복잡함
   * 이 대신 `() => handleClick(0)` 화살표 함수 사용.
   ~~~js
@@ -29,15 +29,15 @@
   }
   ~~~
 
-* 여기 까지의 과정에서 왼쪽 위 사각형을 클릭하여 X를 추가하면
-  1. button이 Square로 부터 onClick prop으로 받은 함수 실행
-      * Square 컴포넌트는 Board에서 해당 함수를 onSquareClick props로 받음
-      * Board 컴포넌트는 JSX에서 해당 함수를 직접 정의
-      * 이 함수는 0을 인수로 handleClick을 호출
-  2. handleClick은 인수 0 을 사용하여 squares 배열의 첫 번째 엘리먼트를 null에서 X로 업데이트
-  3. Board 컴포넌트의 square state가 업데이트되어 Board의 그 모든 자식이 다시 렌더링
-      * 인덱스가 0인 Square 컴포넌트의 value prop이 null에서 X로 변경  
-  4. 최종적으로 사용자는 왼쪽 위 사각형을 클릭한 후 비어있는 사각형이 X로 변경된 것을 확인
+* 여기 까지의 과정에서 왼쪽 위 사각형을 클릭하여 `X`를 추가하면
+  1. `button`이 Square로 부터 `onClick prop`으로 받은 함수 실행
+      * `Square` 컴포넌트는 `Board`에서 해당 함수를 `onSquareClick props`로 받음
+      * `Board` 컴포넌트는 `JSX`에서 해당 함수를 직접 정의
+      * 이 함수는 0을 인수로 `handleClick`을 호출
+  2. `handleClick`은 인수 0 을 사용하여 `squares` 배열의 첫 번째 엘리먼트를 `null`에서 `X`로 업데이트
+  3. `Board` 컴포넌트의 `square state`가 업데이트되어 `Board`의 그 모든 자식이 다시 렌더링
+      * 인덱스가 0인 `Square` 컴포넌트의 `value prop`이 `null`에서 `X`로 변경  
+  4. 최종적으로 사용자는 왼쪽 위 사각형을 클릭한 후 비어있는 사각형이 `X`로 변경된 것을 확인
 
 **`DOM <button>` 엘리먼트의 onClick 어트리뷰트(속성)는 빌트인 컴포넌트이기 때문에 React에서 특별한 의미**
 * 사용자 정의 컴포넌트, 예를 들어 사각형의 경우 이름은 사용자가 원하는 대로 지을 수 있음
@@ -50,14 +50,14 @@
 **원본 데이터를 직접 변형하지 않음으로써의 이점**
 * 불변성을 사용하면 복잡한 기능을 훨씬 쉽게 구현
   * 과거 움직임으로 `돌아가기`를 할 수 있는 `시간 여행` 기능 구현 예정
-* 기본적으로 부모 컴포넌트의 state가 변경되면 모든 자식 컴포넌트가 자동으로 다시 렌더링
+* 기본적으로 부모 컴포넌트의 `state`가 변경되면 모든 자식 컴포넌트가 자동으로 다시 렌더링
   * 변경 사항이 없는 자식 컴포넌트도 포함
 * 리렌더링 자체가 사용자에게 보이는 것은 아니지만, 성능상의 이유로 트리의 영향을 받지 않는 부분의 리렌더링을 피하는 것이 좋음
 * 불변성을 사용하면 컴포넌트가 데이터의 변경 여부를 저렴한 비용으로 판단
 
 **교대로 두기**
-* 기본적으로 첫 번째 이동을 “X”로 설정
-* 보드 컴포넌트에 또 다른 state를 추가
+* 기본적으로 첫 번째 이동을 `“X”`로 설정
+* 보드 컴포넌트에 또 다른 `state`를 추가
 
 ~~~js
 //Board.js
@@ -81,7 +81,7 @@ export default function Board() {
 ~~~
 
 * 여기 까지의 과정에서는 O,X가 덮어씌워지는 상황이 생김
-  * 사각형이 이미 채워져 있는 경우 보드의 state를 업데이트하기 전에 handleClick 함수에서 조기에 return
+  * 사각형이 이미 채워져 있는 경우 보드의 `state`를 업데이트하기 전에 `handleClick` 함수에서 조기에 `return`
 
 ~~~js
 //Board.js
@@ -94,11 +94,17 @@ function handleClick(i) {
 }
 ~~~
 
-**승자 결정하기**
-* `X` , `O`  또는 `null`을 반환하는 도우미 함수 calculateWinner를 추가
+**승자 결정**
+* `X` , `O`  또는 `null`을 반환하는 도우미 함수 `calculateWinner`를 추가
 * 승리할 수 있는 경우의 자리를 2차원 배열로 선언
-* 선언된 배열 line과 squares를 비교하기 위한 for문을 작성
+* 선언된 배열 `line`과 `squares`를 비교하기 위한 `for`문을 작성
 * 비교를 위해 구조 분해 할당
+
+**구조 분해 할당**
+* `비구조화 할당`, `구조화 할당`이라고도 번역되지만 `구조 분해 할당`을 많이 사용
+* `구조 분해 할당`은 배열이나 객체의 구조를 해체하여 내부 값을 개별 변수에 쉽게 할당하는 방법
+* 이를 통해 코드이 간결성과 가독성 ↑
+* `map` 함수에서도 많이 사용되는 방법
 
 ~~~js
 //Board.js
@@ -126,12 +132,87 @@ function calculateWinner(squares) {
   return null;
 }
 ~~~
+* lines는 승리할 수 있는 `squares`의 index 번호
+* `for`문을 통해 `lines`의 길이 만큼 비교를 반복
+* 구조 분해 할당을 통해 `lines`의 index를 `a,b,c`에 보관
+* `squares`의 해당 index 값을 비교하여 3개가 모두 일치하면 값이 `X`인지 `O`인지 `return`
+* 일치하는 것이 없으면 `null`을 `return`
 
-**구조 분해 할당**
-* 비구조화 할당, 구조화 할당이라고도 번역되지만 구조 분해 할당을 많이 사용
-* 구조 분해 할당은 배열이나 객체의 구조를 해체하여 내부 값을 개별 변수에 쉽게 할당하는 방법
-* 이를 통해 코드이 간결성과 가독성 ↑
-* map 함수에서도 많이 사용되는 방법
+**승자 결정**
+* Board 컴포넌트의 `handleClick` 함수에서 `calculateWinner(squares)`를 호출하여 플레이어가 이겼는지 확인
+
+~~~js
+//Board.js
+function handleClick(i) {
+  if (squares[i] || calculateWinner(squares)) {
+    return;
+  }
+  const nextSquares = squares.slice();
+  //...
+}
+~~~
+* 여기까지의 과정으로 승리 조건이 만족되면 더 이상 게임이 진행되지 않음
+
+**승자 결정**
+* 게임이 끝났을 때 플레이어에게 알리기 위해 `“Winner: X”` 또는 `“Winner: O”`라고 표시
+* `Board` 컴포넌트에 `status` 구역을 추가
+* 게임이 끝나면 `status`는 승자를 표시
+* 게임이 진행중인 경우 다음 플레이어의 차례 표시
+
+~~~js
+//Board.js
+export default function Board() {
+  // ...
+  const winner = calculateWinner(squares);
+  let status;
+  if (winner) {
+    status = "Winner: " + winner;
+  } else {
+    status = "Next player: " + (xIsNext ? "X" : "O");
+  }
+
+  return (
+    <>
+      <div className="status">{status}</div>
+      <div className="board-row">
+        // ...
+  )
+}
+~~~
+
+**시간여행 추가**
+* 시간을 거슬러 올라가는 기능
+* `slice()`를 사용하여 매번 이동할 때마다 `squares` 배열의 새 복사본을 만들고 이를 불변으로 처리
+* `squares` 배열의 모든 과거 버전을 저장할 수 있고 이미 발생한 턴 사이를 탐색
+* `squares` 배열을 `history`라는 다른 배열에 저장하고 이 배열을 새로운 `state` 변수로 저장
+
+**한번 더 state 끌어올리기**
+* 최상위 컴포넌트 Game을 작성
+* `history state`를 배치
+* `history state`를 `Game` 컴포넌트에 배치하면 자식 `Board` 컴포넌트에서 `squares state`를 제거
+* `Square` 컴포넌트에서 `Board` 컴포넌트로 `state`를 끌어올렸던 것처럼, 이제 `Board` 컴포넌트에서 최상위 `Game` 컴포넌트로 `state`를 끌어올릴 수 있다
+* `Game` 컴포넌트가 `Board` 컴포넌트의 데이터를 완전히 제어하고 `Board`의 `history`에서 이전 순서를 렌더링하도록 지시
+
+~~~js
+//Board.js ---> Game.js
+function Board() {
+  // ...
+}
+
+export default function Game() {
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board />
+      </div>
+      <div className="game-info">
+        <ol>{/*TODO*/}</ol>
+      </div>
+    </div>
+  );
+}
+~~~
+
 
 ## 2025.04.10 6주차
 **props를 통해 데이터 전달**

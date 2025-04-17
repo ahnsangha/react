@@ -1,6 +1,6 @@
 import './Square.js';
 import './App.css';
-import Board from './Board.js';
+import Board from './Game.js';
 
 export default function App() {
   return (
