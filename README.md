@@ -24,22 +24,114 @@
             setSquares(nextSquares);
     }
     return (
-    ...)
+    //...
+    )
+  }
   ~~~
-  * 여기 까지의 과정에서 왼쪽 위 사각형을 클릭하여 X를 추가하면
-    1. button이 Square로 부터 onClick prop으로 받은 함수 실행
-        * Square 컴포넌트는 Board에서 해당 함수를 onSquareClick props로 받음
-        * Board 컴포넌트는 JSX에서 해당 함수를 직접 정의
-        * 이 함수는 0을 인수로 handleClick을 호출
-    2. handleClick은 인수 0 을 사용하여 squares 배열의 첫 번째 엘리먼트를 null에서 X로 업데이트
-    3. Board 컴포넌트의 square state가 업데이트되어 Board의 그 모든 자식이 다시 렌더링
-        * 인덱스가 0인 Square 컴포넌트의 value prop이 null에서 X로 변경  
-    4. 최종적으로 사용자는 왼쪽 위 사각형을 클릭한 후 비어있는 사각형이 X로 변경된 것을 확인
+
+* 여기 까지의 과정에서 왼쪽 위 사각형을 클릭하여 X를 추가하면
+  1. button이 Square로 부터 onClick prop으로 받은 함수 실행
+      * Square 컴포넌트는 Board에서 해당 함수를 onSquareClick props로 받음
+      * Board 컴포넌트는 JSX에서 해당 함수를 직접 정의
+      * 이 함수는 0을 인수로 handleClick을 호출
+  2. handleClick은 인수 0 을 사용하여 squares 배열의 첫 번째 엘리먼트를 null에서 X로 업데이트
+  3. Board 컴포넌트의 square state가 업데이트되어 Board의 그 모든 자식이 다시 렌더링
+      * 인덱스가 0인 Square 컴포넌트의 value prop이 null에서 X로 변경  
+  4. 최종적으로 사용자는 왼쪽 위 사각형을 클릭한 후 비어있는 사각형이 X로 변경된 것을 확인
 
 **`DOM <button>` 엘리먼트의 onClick 어트리뷰트(속성)는 빌트인 컴포넌트이기 때문에 React에서 특별한 의미**
 * 사용자 정의 컴포넌트, 예를 들어 사각형의 경우 이름은 사용자가 원하는 대로 지을 수 있음
 
 **불변성의 중요성**
+* 일반적으로 데이터를 변경하는 방법 두가지
+  1. 데이터의 값을 직접 변경하여 데이터를 변형 
+  2. 원하는 변경 사항이 있는 새 복사본으로 데이터를 대체
+
+**원본 데이터를 직접 변형하지 않음으로써의 이점**
+* 불변성을 사용하면 복잡한 기능을 훨씬 쉽게 구현
+  * 과거 움직임으로 `돌아가기`를 할 수 있는 `시간 여행` 기능 구현 예정
+* 기본적으로 부모 컴포넌트의 state가 변경되면 모든 자식 컴포넌트가 자동으로 다시 렌더링
+  * 변경 사항이 없는 자식 컴포넌트도 포함
+* 리렌더링 자체가 사용자에게 보이는 것은 아니지만, 성능상의 이유로 트리의 영향을 받지 않는 부분의 리렌더링을 피하는 것이 좋음
+* 불변성을 사용하면 컴포넌트가 데이터의 변경 여부를 저렴한 비용으로 판단
+
+**교대로 두기**
+* 기본적으로 첫 번째 이동을 “X”로 설정
+* 보드 컴포넌트에 또 다른 state를 추가
+
+~~~js
+//Board.js
+export default function Board() {
+    const [xIsNext, setXIsNext] = useState(true);
+    const [squares, setSquares] = useState(Array(9).fill(null));
+    function handleClick(i) {
+        const nextSquares = squares.slice();
+        if (xIsNext) {
+          nextSquares[i] = "X";
+        } else {
+          nextSquares[i] = "O";
+        }
+        setSquares(nextSquares);
+        setXIsNext(!xIsNext);
+    }
+    return (
+    //...
+  );
+}
+~~~
+
+* 여기 까지의 과정에서는 O,X가 덮어씌워지는 상황이 생김
+  * 사각형이 이미 채워져 있는 경우 보드의 state를 업데이트하기 전에 handleClick 함수에서 조기에 return
+
+~~~js
+//Board.js
+function handleClick(i) {
+  if (squares[i]) {
+    return;
+  }
+  const nextSquares = squares.slice();
+  //...
+}
+~~~
+
+**승자 결정하기**
+* `X` , `O`  또는 `null`을 반환하는 도우미 함수 calculateWinner를 추가
+* 승리할 수 있는 경우의 자리를 2차원 배열로 선언
+* 선언된 배열 line과 squares를 비교하기 위한 for문을 작성
+* 비교를 위해 구조 분해 할당
+
+~~~js
+//Board.js
+export default function Board() {
+  //...
+}
+
+function calculateWinner(squares) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+  ];
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        return squares[a];
+      }
+    }
+  return null;
+}
+~~~
+
+**구조 분해 할당**
+* 비구조화 할당, 구조화 할당이라고도 번역되지만 구조 분해 할당을 많이 사용
+* 구조 분해 할당은 배열이나 객체의 구조를 해체하여 내부 값을 개별 변수에 쉽게 할당하는 방법
+* 이를 통해 코드이 간결성과 가독성 ↑
+* map 함수에서도 많이 사용되는 방법
 
 ## 2025.04.10 6주차
 **props를 통해 데이터 전달**
