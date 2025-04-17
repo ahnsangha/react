@@ -1,5 +1,8 @@
 # 202130311 안상하 
 
+## 2025.04.17 7주차
+****
+
 ## 2025.04.10 6주차
 **props를 통해 데이터 전달**
 * React의 component architecture를 사용해서 재사용할 수 있는 component를 만들어서 지저분하고 중복된 코드 삭제
@@ -34,13 +37,14 @@
 **useState 사용**
   1. 파일 상단에 useState를 import
   2. Square 컴포넌트에서 value prop을 제거, 대신 useState 사용
-  3. Square 컴포넌트 시작 부분에 useState를 호출, value라는 이름의 state 변수를 반환
-    * value 값을 저장하는 변수, setValue는 값을 변경하는 데 사용하는 함수
-    * useState에 전달된 null은 이 state 변수의 초기값으로 현재 value는 null이라는 의미
-    * 앞에서 Square 컴포넌트는 더 이상 props를 사용하지 않게 수정
-  4. Board 컴포넌트가 생성한 9개의 Square 컴포넌트에서도 value prop을 제거  
-    ![alt text](image/image12.png)  
+  3. Square 컴포넌트 시작 부분에 useState를 호출, value라는 이름의 state 변수를 반환  
+      * value 값을 저장하는 변수, setValue는 값을 변경하는 데 사용하는 함수  
+      * useState에 전달된 null은 이 state 변수의 초기값으로 현재 value는 null이라는 의미  
+      * 앞에서 Square 컴포넌트는 더 이상 props를 사용하지 않게 수정
+  4. Board 컴포넌트가 생성한 9개의 Square 컴포넌트에서도 value prop을 제거   
   5. console.log("clicked!"); -> 이벤트 핸들러를 ('X')로 변경  
+
+     ![alt text](image/image12.png)
     ![alt text](image/image13.png)  
   
 **state 끌어올리기**
