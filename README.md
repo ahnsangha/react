@@ -1,7 +1,45 @@
 # 202130311 안상하 
 
 ## 2025.04.17 7주차
-****
+**state 끌어올리기**
+* handleClick 함수는 JavaScript의 slice() 배열 메서드를 사용하여 squares 배열의 사본인 nextSquares를 생성
+* 그 다음 handleClick 함수는 nextSquares 배열의 첫 번째 Squares(index [0])에 X를 추가하여 업데이트
+* handleClick 함수에 업데이트할 Square의 index를 나타내는 인수 i를 추가
+* Square의 onSquareClick prop를 JSX에서 직접 handleCLick(0)으로 설정할 수 도 있지만 작동하지 않음
+  * handleClick(0) 호출은 Board 컴포넌트 렌더링의 일부가 됨
+  * handleClick(0)은 setSquares를 호출하여, Board 컴포넌트의 state를 변경하기 때문에 Boartd 컴포넌트 전체가 다시 렌더링
+  * 이 과정에서 handleClick(0) 다시 실행되기 때문에 무한 루프에 빠지게 됨
+* 9개의 서로 다른 함수를 정의하기에는 복잡함
+  * 이 대신 `() => handleClick(0)` 화살표 함수 사용.
+  ~~~js
+  //board.js
+    import { useState } from "react";
+    import Square from "./Square";
+
+    export default function Board() {
+        const [squares, setSquares] = useState(Array(9).fill(null));
+        function handleClick(i) {
+            const nextSquares = squares.slice();
+            nextSquares[i] = "X";
+            setSquares(nextSquares);
+    }
+    return (
+    ...)
+  ~~~
+  * 여기 까지의 과정에서 왼쪽 위 사각형을 클릭하여 X를 추가하면
+    1. button이 Square로 부터 onClick prop으로 받은 함수 실행
+        * Square 컴포넌트는 Board에서 해당 함수를 onSquareClick props로 받음
+        * Board 컴포넌트는 JSX에서 해당 함수를 직접 정의
+        * 이 함수는 0을 인수로 handleClick을 호출
+    2. handleClick은 인수 0 을 사용하여 squares 배열의 첫 번째 엘리먼트를 null에서 X로 업데이트
+    3. Board 컴포넌트의 square state가 업데이트되어 Board의 그 모든 자식이 다시 렌더링
+        * 인덱스가 0인 Square 컴포넌트의 value prop이 null에서 X로 변경  
+    4. 최종적으로 사용자는 왼쪽 위 사각형을 클릭한 후 비어있는 사각형이 X로 변경된 것을 확인
+
+**`DOM <button>` 엘리먼트의 onClick 어트리뷰트(속성)는 빌트인 컴포넌트이기 때문에 React에서 특별한 의미**
+* 사용자 정의 컴포넌트, 예를 들어 사각형의 경우 이름은 사용자가 원하는 대로 지을 수 있음
+
+**불변성의 중요성**
 
 ## 2025.04.10 6주차
 **props를 통해 데이터 전달**
