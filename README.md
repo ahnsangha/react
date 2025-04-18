@@ -92,6 +92,8 @@ function handlePlay(nextSquares) {
 ~~~
 
 * `Game` 컴포넌트에서 `history`를 `map`
+* 각 플레이에 대한 버튼 `<button>`이 포함된 목록 `<li>`를 생성
+* 버튼에는 아직 구현하지 않은 `jumpTo`라는 함수를 호출하는 `onClick`핸들러가 있음
 ~~~js
 //Game.js
 function jumpTo(nextMove) {
@@ -143,7 +145,6 @@ const moves = history.map((squares.move)) => { }
 * 두 `key`가 일치한다면 해당 컴포넌트를 이동
 * `key`는 각 React가 각 컴포넌트를 구별할 수 있도록 하여, 컴포넌트가 다시 렌더링 될 때 React가 해당 컴포넌트의 `state`를 유지할 수 있게 함
 * 컴포넌트의 `key`가 변하면 컴포넌트는 제거되고 새로운 `state`와 함께 다시 생성됨
-
 * `key`는 React에서 특별하게 미리 지정된 프로퍼티
 * 엘리먼트가 생성되면 React는 `key`프로퍼티를 추출, 반환되는 엘리먼트에 직접 `key`를 저장
 * `key`가 `props`로 전달되는 것처럼 보일 수 있지만, React는 자동으로 `key`를 사용해 업데이트할 컴포넌트를 결정
@@ -198,9 +199,16 @@ function handlePlay(nextSquares) {
   setXIsNext(!xIsNext);
 }
 ~~~
-* 항상 마지막 동작을 렌더링 하는 대신 현재 선택한 동작을 렌더링하도록 `Game`컴포넌트를 수정
+* 항상 마지막 동작을 렌더링 하는 대신 현재 선택한 동작을 렌더링하도록 `Game`컴포넌트를 수정  
 `[history.length - 1] -> [currentMove]`
 * 게임 히스토리의 특정 단계를 클릭하면 틱택토 보드가 즉시 업데이트되어 해당 단계가 발생한 시점의 보드 모양이 표시
+
+**최종 정리**
+* `currentMove`가 짝수일 때는 `xIsNext === true`가 되고, 홀수일 때는 `xIsNext === false`가 됨
+  * `currentMove`의 값을 알고 있다면 언제나 `xIsNext`가 무엇인지 알 수 있음
+  * 두 가지 `state`를 저장할 필요가 없음
+    * 중복되는 `state`는 피하는 것이 좋음
+    * `state`에 저장하는 것을 단순화하면 버그를 줄이고 코드를 더 쉽게 이해할 수 있음
 
 ## 2025.04.17 7주차
 **state 끌어올리기**
