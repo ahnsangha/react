@@ -1,5 +1,207 @@
 # 202130311 안상하 
 
+## 2025.04.18 보강
+**한번 더 state 끌어올리기**
+* `Game` 컴포넌트 안에 `state` 추가
+~~~js
+//Game.js
+export default function Game() {
+    const [xIsNext, setXIsNext] = useState(true);
+    const [history, setHistory] = useState([Array(9).fill(null)]);
+ //...
+}
+~~~
+
+* 현재 플레이 대한 `square`을 렌더링하려면 `history`에서 마지막 `squares`의 배열을 읽어야 함
+* 계산할 수 있는 충분한 정보가 있기 때문에 `usestate`는 필요하지 않음
+~~~js
+//Game.js
+export default function Game() {
+    const [xIsNext, setXIsNext] = useState(true);
+    const [history, setHistory] = useState([Array(9).fill(null)]);
+    const currentSquares = history[history.length - 1];
+// ...
+}
+~~~
+* `Game` 컴포넌트 안의 `Board` 컴포넌트가 게임을 업데이트할 때 호출할 `handlePlay` 함수 생성
+* `xIsNext`, `currentSquares`, `handlePlay` 를 `Board` 컴포넌트에 `props`로 전달 
+~~~js
+//Game.js
+export default function Game() {
+  ...
+
+  function handlePlay(nextSquares) {
+    // TODO
+  }
+
+  return (
+    <div className="game">
+        <div className="game-board">
+          <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay}
+//...
+  )
+~~~
+
+* `Board` 컴포넌트가 `xIsNext`, `squares`, `onPlay` 함수를 `props`로 받을 수 있도록 변경
+* `Board`함수에서 `useState`호출하는 처음 두 줄 제거
+~~~js
+//Game.js
+function Board({ xIsNext, squares, onPlay }) {  
+    function handleClick(i) {
+//...
+    }
+    //...
+}
+~~~
+
+* `Board` 컴포넌트의 `handleClick`에 있는 `setSquares` 및 `setIsNext` 호출을 새로운 `onPlay`함수에 대한 단일 호출로 대체
+~~~js
+//Game.js
+if (xIsNext) {
+        nextSquares[i] = "X";
+      } else {
+        nextSquares[i] = "O";
+      }
+       onPlay(nextSquares)
+    }
+~~~
+
+* `Game`컴포넌트에서 `handlePlay`함수 구현
+* `setSquares`함수 대신 `history` `state` 변수 사용
+* `squares` 배열을 새 `history`항목으로 추가하여 `history`업데이트 및
+`xIsNext` 값 반전
+~~~js
+//Game.js
+function handlePlay(nextSquares) {
+      setHistory([...history, nextSquares]);
+      setXIsNext(!xIsNext);
+    }
+ //...
+~~~
+
+* `[...history, nextSquares]`는 `history`에 있는 모든 항목을 포함하는 새 배열을 만들고 그 뒤에 `nextSquares` 생성
+* `...history` 전개 구문을 사용하면 `"history 의 모든 항목 열거"`로 읽을 수 있음
+
+**과거 움직임 보여주기**
+* `<button>` 같은 React 엘리먼트는 일반 JavaScript 객체이므로 애플리케이션에서 전달 가능
+* React에서 여러 엘리먼트를 렌더링하려면 React 엘리먼트 배열 사용
+* 이미 state에 이동 history 배열이 있기 때문에 이것을 React 엘리먼트 배열로 변환
+* JavaScirpt에서 한 배열을 다른 배열로 변환하려면 배열 map 메서드 사용
+~~~js
+[1, 2, 3].map((x) => x * 2) // [2, 4, 6]
+~~~
+
+* `Game` 컴포넌트에서 `history`를 `map`
+~~~js
+//Game.js
+function jumpTo(nextMove) {
+    // TODO
+  }
+
+  const moves = history.map((squares, move) => {
+    let description;
+    if (move > 0) {
+      description = 'Go to move #' + move;
+    } else {
+      description = 'Go to game start';
+    }
+    return (
+      <li>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    );
+  });
+~~~
+* 실행을 하면 다음과 같은 오류 메시지가 나옴
+![alt text](image/image14.png)
+* 배열 또는 반복자의 각 자식 요소는 고유한 `"key"`속성을 가져야 한다.
+
+**map 함수의 활용**
+~~~js
+const moves = history.map((squares.move)) => { }
+~~~
+* `map`의 기본 구문은 `map(callbackFn)` 혹은 `map(callbackFn, thisArg)`
+* `thisArg`는 내부에서 `this`로 사용할 값을 지정하는데 화살표 함수에서는 생략
+* 예제에서는 `callbackFn`만 사용, 화살표 함수가 `callback 함수를 대신함
+* squares, move는 화살표 함수의 매개변수
+1. `history.map`: `history`는 모든 플레이를 저장하는 배열 이 `history`에 `map`함수를 적용한다는 의미
+2. `map`함수는 `history`각각의 요소 `index`를 순회하면서 `squares` 추출
+3. 각 요소는 `{ }`안의 실행문을 실행하면서 버튼을 생성
+4. 이렇게 생성된 버튼은 `moves`객체(배열)에 다시 저장
+5. `move` 최종 렌더링에 사용
+
+**key 선택하기**
+* 리스트를 렌더링할 때 React는 렌더링 된 각 리스트 항목에 대한 몇 가지 정보를 저장
+* 리스트를 업데이트할 때 React는 무엇이 변경되었는지 확인
+* 리스트의 항목은 추가, 제거, 재정렬 또는 업데이트될 수 있음
+* React는 컴퓨터 프로그램이기에 사용자의 의도한 바를 알 수 없음
+  * 그러므로 리스트의 항목에 `key`프로퍼티를 저장하여 각 리스트의 항목이 다른 항목과 다르다는 것을 구별해야 함
+* 만약 데이터베이스에서 데이터를 불러와 사용한다면 데이터베이스 ID를 `key`로 사용할 수 있음
+* 리스트가 다시 렌더링 되면 React는 각 리스트의 항목의 `key`를 가져와서 이전 리스트의 항목에서 일치하는 `key`를 탐색
+* 현재 리스트에서 이전에 존재하지 않았던 `key`가 있으면 React는 컴포넌트를 생성
+* 만약 현재 리스트에 이전 리스트에 존재했던 `key`를 가지고 있지 않다면 React는 그 `key`를 가진 컴포넌트를 제거
+* 두 `key`가 일치한다면 해당 컴포넌트를 이동
+* `key`는 각 React가 각 컴포넌트를 구별할 수 있도록 하여, 컴포넌트가 다시 렌더링 될 때 React가 해당 컴포넌트의 `state`를 유지할 수 있게 함
+* 컴포넌트의 `key`가 변하면 컴포넌트는 제거되고 새로운 `state`와 함께 다시 생성됨
+
+* `key`는 React에서 특별하게 미리 지정된 프로퍼티
+* 엘리먼트가 생성되면 React는 `key`프로퍼티를 추출, 반환되는 엘리먼트에 직접 `key`를 저장
+* `key`가 `props`로 전달되는 것처럼 보일 수 있지만, React는 자동으로 `key`를 사용해 업데이트할 컴포넌트를 결정
+* 부모가 지정한 `key`가 무엇인지 컴포넌트는 알 수 없음
+* 동적인 리스트를 만들 때마다 적절한 `key`를 할당하는 것을 강력하게 추천
+* 적절한 `key`가 없는 경우 데이터의 재구성을 고려
+* `key`가 지정되지 않은 경우, React는 경고를 표시하며 배열의 인덱스를 기본 `key`로 사용
+* 배열 인덱스를 `key`사용하면 리스트 항목의 순서를 바꾸거나 항목을 추가/제거할 때 문제가 발생
+* 명시적으로 `key={i}`를 전달하면 경고는 사라지지만 배열의 인덱스를 사용할 때 와 같은 문제가 발생하므로 추천X
+* `key`는 전역적으로 고유할 필요 없으며 컴포넌트와 해당 컴포넌트의 형제 컴포넌트 사이에서만 고유하면 됨
+
+**시간여행 구현**
+* 틱택토 게임의 기록에서 과거의 각 플레이에는 해당 플레이의 일련번호인 고유 ID가 있음
+* 플레이는 중간에 순서를 바꾸거나 삭제하거나 삽입할 수 없기 때문에 플레이 인덱스를 `key`로 사용하는 것이 안전
+* `Game`함수에서 `<li key={move}>`로 `key`를 추가할 수 있으며, 렌더링 된 게임을 다시 로드하면 React의 `"key"`에러가 사라질 것
+~~~js
+//Game.js
+const moves = history.map((squares, move) => {
+  //...
+  return (
+    <li key={move}>
+      <button onClick={() => jumpTo(move)}>{description}</button>
+    </li>
+  );
+});
+~~~
+* `jumpTo`를 구현하기 전에 사용자가 현재 어떤 단계를 보고 있는지를 추적할 수 있는 `Game` 컴포넌트의 `state`가 하나 더 필요
+* 초기값이 0인 `currentMove`라는 새 `state` 변수를 정의
+~~~js
+//Game.js
+const [currentMove, setCurrentMove] = useState(0);
+~~~
+* `Game` 내부의 `jumpTo` 함수를 수정해서 해당 `currentMove`를 업데이트
+* 또한 `currentMove`를 변경하는 숫자가 짝수면 `xIsNext`를 `true`로 설정
+~~~js
+//Game.js
+function jumpTo(nextMove) {
+    setCurrentMove(nextMove);
+    setXIsNext(nextMove % 2 === 0);
+  }
+~~~
+* `Game`의 `handlePlay`함수 내용 중 두 가지를 변경
+* 특정 시점에서 새로운 플레이를 하는 경우 해당 시점까지의 히스토리만 유지
+  * `history`의 모든 항목(...전개 구문) 뒤에 `nextSquares`를 추가하는 대신
+  `history.slice(0, currentMove + 1)`의 모든 항목 뒤에 추가하여 이전 히스토리의 해당 부분만 유지
+* 이동할 때마다 최신 히스토리 항목을 가리키도록 `currentMove`를 업데이트
+~~~js
+function handlePlay(nextSquares) {
+  const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+  setHistory(nextHistory);
+  setCurrentMove(nextHistory.length - 1);
+  setXIsNext(!xIsNext);
+}
+~~~
+* 항상 마지막 동작을 렌더링 하는 대신 현재 선택한 동작을 렌더링하도록 `Game`컴포넌트를 수정
+`[history.length - 1] -> [currentMove]`
+* 게임 히스토리의 특정 단계를 클릭하면 틱택토 보드가 즉시 업데이트되어 해당 단계가 발생한 시점의 보드 모양이 표시
+
 ## 2025.04.17 7주차
 **state 끌어올리기**
 * `handleClick` 함수는 `JavaScript`의 `slice()` 배열 메서드를 사용하여 `squares` 배열의 사본인 `nextSquares`를 생성
@@ -17,7 +219,7 @@
     import Square from "./Square";
 
     export default function Board() {
-        const [squares, setSquares] = useState(Array(9).fill(null));
+        const [squares, setSquares] = useState([Array(9).fill(null)]);
         function handleClick(i) {
             const nextSquares = squares.slice();
             nextSquares[i] = "X";
@@ -63,7 +265,7 @@
 //Board.js
 export default function Board() {
     const [xIsNext, setXIsNext] = useState(true);
-    const [squares, setSquares] = useState(Array(9).fill(null));
+    const [squares, setSquares] = useState([Array(9).fill(null)]);
     function handleClick(i) {
         const nextSquares = squares.slice();
         if (xIsNext) {
@@ -194,7 +396,7 @@ export default function Board() {
 * `Game` 컴포넌트가 `Board` 컴포넌트의 데이터를 완전히 제어하고 `Board`의 `history`에서 이전 순서를 렌더링하도록 지시
 
 ~~~js
-//Board.js ---> Game.js
+//Board.js ---> Game.js 이름 변경
 function Board() {
   // ...
 }
