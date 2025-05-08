@@ -51,13 +51,133 @@
 * 계층구조의 최상의 `component(FilterableProductTable)`는 `prop`으로 데이터 모델을 받음
 * 이는 데이터가 최상의 component부터 트리의 맨 아래까지 흘러가기 때문에 단방향 데이터 흐름 이라고 부름
 
-**step2에 있는 component 구현**
+**Step2에 있는 component 구현**
 1. `Project`를 새로 생성하거나 초기 commit으로 switch하여 실행에 이상이 없는지 확인
 2. src/ 아래 필요 없는 파일을 제거 (logo.svg / setupTest.js)
 3. `App.js`에 있는 코드를 모두 삭제
 4. 먼저 다음 코드로 `App.js`가 정상적으로 동작하는지 확인
 5. 사용할 데이터 `PRODUCTS`를 적당한 위치에 작성
-6. 다음으로 `FilterableProductTable` component를 만듬
+
+**Step 3: 최소한의 데이터만 이용해서 완벽하게 UI State 표현**
+* `UI`를 `상호작용(interactive)`하게 만들려면 사용자가 기반 데이터 모델을 변경할 수 있게 해야 함.
+* React는 state를 통해 기반 데이터 모델을 변경할 수 있게 함
+* state는 앱이 기억해야 하는, 변경할 수 있는 데이터의 최소 집합이라고 생각
+* state를 구조화 하는데 가장 중요한 원칙은 중복배제원칙
+* 애플리케이션이 필요로 하는 가장 최소한의 state를 파악하고 나머지 모든 것들은 필요에 따라 실시간으로 계산 
+* 예를 들어 쇼핑 리스트를 만든다고 하면 배열에 상품 아이템을 넣게 될 것
+* UI에 상품 아이템의 개수를 노출하고 싶다면 상품 아이템 개수를 따로 state 값으로 가지는 게 아니라 단순하게 배열의 길이를 쓰면 됨
+* 예시 애플리케이션 내 데이터들을 생각해보면 다음과 같은 데이터를 가지고 있음
+  1. 제품의 원본 목록
+  2. 사용자가 입력한 검색어
+  3. 체크박스의 값
+  4. 필터링된 제품 목록
+* 이 중 어떤 것이 state가 되어야 할까? 세 가지 질문을 통해 결정해보자
+  1. `시간이 지나도 변하지 않는가?` state가 아님
+  2. `부모로부터 props를 통해 전달되는가?` state가 아님
+  3. `컴포넌트 안의 다른 state나 props를 가지고 계산 가능한가?` state가 아님
+* 이 외의 남는 것이 `state`가 될 것
+
+**여기까지의 과정**
+~~~js
+// App.js
+
+export default function App() {
+  return (
+    <>
+      <FilterableProductTable products={PRODUCTS} />
+    </>
+  );
+}
+
+function FilterableProductTable({ products }) {
+  return (
+    <div>
+      <SearchBar />
+      <ProductTable products={products} />
+    </div>
+  )
+}
+
+function SearchBar() {
+  return (
+    <form>
+      <input type="text" placeholder="Search..."/>
+      <label>
+        <input type="checkbox" />
+        {' '}
+        Only show products in stock
+      </label>
+    </form>
+  )
+}
+
+function ProductTable({ products }) {
+  const rows = [];
+  let lastCategory = null;
+
+  products.forEach((product) => {
+    if (product.category !== lastCategory) {
+      rows.push(
+        <ProductCategoryRow
+          category={product.category}
+          key={product.category} />
+      );
+    }
+    rows.push(
+      <ProductRow
+        product={product}
+        key={product.name} />
+    );
+    lastCategory = product.category;
+  });
+
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>{rows}</tbody>
+    </table>
+  );
+}
+
+function ProductCategoryRow({ category }) {
+  return (
+    <tr>
+      <th colspan = "2">
+          {category}
+      </th>
+    </tr>
+  );
+}
+
+function ProductRow({ product }) {
+  const name = product.stocked ? product.name :
+    <span style={{ color: 'red' }}>
+      {product.name}
+    </span>;
+
+  return (
+    <tr>
+      <td>{name}</td>
+      <td>{product.price}</td>
+    </tr>
+  );
+}
+  
+const PRODUCTS = [
+  { category: "Fruits", price: "$1", stocked: true, name: "Apple" },
+  { category: "Fruits", price: "$1", stocked: true, name: "Dragonfruit" },
+  { category: "Fruits", price: "$2", stocked: false, name: "Passionfruit" },
+  { category: "Vegetables", price: "$2", stocked: true, name: "Spinach" },
+  { category: "Vegetables", price: "$4", stocked: false, name: "Pumpkin" },
+  { category: "Vegetables", price: "$1", stocked: true, name: "Peas" }
+];
+
+~~~
 
 ## 2025.04.18 보강
 **한번 더 state 끌어올리기**
