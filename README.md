@@ -16,15 +16,15 @@
 * 앱을 구현하면서 어떤 컴포넌트가 `state`를 가져야 하는 지 바로 명확하지 않을 수 있음
 * 어떤 컴포넌트가 `state`를 가져야 하는지 결정할려면...
   * 애플리케이션의 각 `state`에 대해
-  1. 해당 `state`를 기반으로 렌더링하는 모든 컴포넌트를 찾고
-  2. 가장 가까운 공통되는 부모 컴포넌트를 찾고(계층에서 모두를 포괄하는 상위 컴포넌트)
-  3. `state`가 어디에 위치 돼야 하는지 결정
+    1. 해당 `state`를 기반으로 렌더링하는 모든 컴포넌트를 찾고
+    2. 가장 가까운 공통되는 부모 컴포넌트를 찾고(계층에서 모두를 포괄하는 상위 컴포넌트)
+    3. `state`가 어디에 위치 돼야 하는지 결정
 * `state`가 어디에 위치 돼야 하는지 결정할려면...
   1. 대개, 공통 부모에 `state`를 그냥 두면 됨
   2. 혹은, 공통 부모 상위의 컴포넌트에 둬도 됨
   3. `state`를 소유할 적절한 컴포넌트를 찾지 못했다면, `state`를 소유하는 컴포넌트를 하나 만들어서 상위 계층에 추가
-  * 이전 단계에서 이 애플리케이션의 두 가지 `state`인 "사용자의 검색어 입력과 체크박스의 값"을 발견
-  * 이 예시에서 두 가지 `state`가 항상 함께 나타나기 때문에 같은 위치에 두는 것이 합리적  
+    * 이전 단계에서 이 애플리케이션의 두 가지 `state`인 "사용자의 검색어 입력과 체크박스의 값"을 발견
+    * 이 예시에서 두 가지 `state`가 항상 함께 나타나기 때문에 같은 위치에 두는 것이 합리적  
 1. `state`를 쓰는 컴포넌트를 찾기
   * `ProducTable`은 `state`에 기반한 상품 리스트를 필터링해야 함(검색어와 체크 박스의 값)
   * `SearchBar`는 `state`를 표시해 주어야 함(검색어와 체크 박스의 값)
@@ -61,10 +61,218 @@ return (
 ~~~
 
 3. `ProductTable`의 `props`를 추가 -> `products` `filterText` `inStockOnly`
+~~~js
+//ProductTable
+function ProductTable({ products, filterText, inStockOnly }) {
+~~~
+
 4. `ProductTable`의 `forEach`문 수정
+~~~js
+//ProductTable
+ products.forEach((product) => {
+    if (
+      product.name.toLowerCase().indexOf(
+        filterText.toLowerCase()
+      ) === -1
+    ) {
+      return;
+    }
+    if (inStockOnly && !product.stocked) {
+      return;
+    }
+    if (product.category !== lastCategory) {
+      rows.push(
+        <ProductCategoryRow
+          category={product.category}
+          key={product.category} />
+      );
+    }
+    rows.push(
+      <ProductRow
+        product={product}
+        key={product.name} />
+    );
+    lastCategory = product.category;
+  });
+
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>{rows}</tbody>
+    </table>
+  );
+}
+~~~
+
 ~~~js
 //SearchBar
   function SearchBar({filterText, inStockOnly}) {
+~~~
+* 여기까지의 과정에서 다음과 같은 오류가 나옴
+![alt text](image/image15.png)
+* `SearchBar` `input`의 `value`값을 아직 안 넣었기에 오류가 나옴
+
+**Step 5. 역 데이터 흐름 추가하기**
+* 지금까지 계층 구조 아래로 흐르는 `props`와 `state`의 함수로써 앱을 만듬
+* 이제 사용자 입력에 따라 `state`를 변경하려면 반대 방향의 데이터 흐름을 만들어야 함
+* 이를 위해서는 계층 구조의 하단에 있는 컴포넌트에서 `FilterableProductTable`의 `state`를 업데이트할 수 있어야 함
+* `filterText`라는 `state`가 변경되는 것이 아니기 때문에 `input`의 `value`는 변하지 않고 화면도 바뀌는 것이 없음
+* 사용자가 `input`을 변경할때 마다 사용자의 입력을 반영할 수 있도록 `state`를 업데이트
+* `state`는 `FilterableProductTable`이 가지고 있고 `state` 변경을 위해서는 `setFilterText`와 `setInStockOnly`를 호출을 하면 됨
+* `SearchBar`가 `FilterableProductTable`의 `state`를 업데이트할 수 있도록 하려면 이 함수들을 `SearchBar`로 전달
+~~~js
+//FilterableProductTable
+function FilterableProductTable({ products }) {
+  const [filterText, setFilterText] = useState('');
+  const [inStockOnly, setInStockOnly] = useState(false);
+~~~
+
+* `SearchBar`에서 `onChange`이벤트 핸들러를 추가하여 부모 `state`를 변경할 수 있도록 구현
+~~~js
+//FilterableProductTable
+return (
+    <div>
+      <SearchBar 
+        filterText={filterText}
+        inStockOnly={inStockOnly}
+        onFilterTextChange={setFilterText}
+        onInStockOnlyChange={setInStockOnly}/>
+      <ProductTable 
+        products={products}
+        filterText={filterText}
+        inStockOnly={inStockOnly} />
+    </div>
+  )
+~~~
+
+* 완성
+~~~js
+//App.js
+//App.css 도 추가
+import { useState } from 'react';
+import './App.css';
+
+export default function App() {
+  return (
+    <>
+      <FilterableProductTable products={PRODUCTS} />
+    </>
+  );
+}
+
+function FilterableProductTable({ products }) {
+  const [filterText, setFilterText] = useState('');
+  const [inStockOnly, setInStockOnly] = useState(false);
+
+  return (
+    <div>
+      <SearchBar 
+        filterText={filterText}
+        inStockOnly={inStockOnly}
+        onFilterTextChange={setFilterText}
+        onInStockOnlyChange={setInStockOnly}/>
+      <ProductTable 
+        products={products}
+        filterText={filterText}
+        inStockOnly={inStockOnly} />
+    </div>
+  )
+}
+
+function SearchBar({filterText, inStockOnly, onFilterTextChange, onInStockOnlyChange}) {
+  return (
+    <form>
+      <input type="text" value={filterText} placeholder="Search..." onChange={(e) => onFilterTextChange(e.target.value)}/>
+      <label>
+        <input type="checkbox" checked={inStockOnly} onChange={(e) => onInStockOnlyChange(e.target.checked)}/>
+        {' '}
+        Only show products in stock
+      </label>
+    </form>
+  )
+}
+
+function ProductTable({ products, filterText, inStockOnly }) {
+  const rows = [];
+  let lastCategory = null;
+
+  products.forEach((product) => {
+    if (
+      product.name.toLowerCase().indexOf(
+        filterText.toLowerCase()
+      ) === -1
+    ) {
+      return;
+    }
+    if (inStockOnly && !product.stocked) {
+      return;
+    }
+    if (product.category !== lastCategory) {
+      rows.push(
+        <ProductCategoryRow
+          category={product.category}
+          key={product.category} />
+      );
+    }
+    rows.push(
+      <ProductRow
+        product={product}
+        key={product.name} />
+    );
+    lastCategory = product.category;
+  });
+
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>{rows}</tbody>
+    </table>
+  );
+}
+
+function ProductCategoryRow({ category }) {
+  return (
+    <tr>
+      <th colspan = "2">
+          {category}
+      </th>
+    </tr>
+  );
+}
+
+function ProductRow({ product }) {
+  const name = product.stocked ? product.name :
+    <span style={{ color: 'red' }}>
+      {product.name}
+    </span>;
+
+  return (
+    <tr>
+      <td>{name}</td>
+      <td>{product.price}</td>
+    </tr>
+  );
+}
+  
+const PRODUCTS = [
+  { category: "Fruits", price: "$1", stocked: true, name: "Apple" },
+  { category: "Fruits", price: "$1", stocked: true, name: "Dragonfruit" },
+  { category: "Fruits", price: "$2", stocked: false, name: "Passionfruit" },
+  { category: "Vegetables", price: "$2", stocked: true, name: "Spinach" },
+  { category: "Vegetables", price: "$4", stocked: false, name: "Pumpkin" },
+  { category: "Vegetables", price: "$1", stocked: true, name: "Peas" }
+];
+
 ~~~
 
 ## 2025.05.08 10주차
@@ -73,27 +281,27 @@ return (
 **Step.1 UI를 컴포넌트 계층으로 쪼개기**
 * 먼저 모의 시안에 있는 모든 컴포넌트와 하위 컴포넌트 주변에 박스를 그리고 이름을 붙이면서 시작
 * 어떤 배경을 가지고 있냐에 따라 디자인을 컴포넌트로 나누는 방법에 대한 관점이 달라질 수 있음
-* Programming : 새로운 함수나 객체를 만드는 방식과 같은 방법으로 시작
+* `Programming` : 새로운 함수나 객체를 만드는 방식과 같은 방법으로 시작
   * 이 중 단일책임 원칙으로 반영하고자 한다면 컴포넌트는 이상적으로는 한 번에 한 가지 일만 해야 함.
   * 컴포넌트가 커진다면 작은 컴포넌트로 쪼개져야 함
-* CSS : 클래스 선택자를 무엇으로 만들지 생각(실제 컴포넌트는 좀 더 세분화 되어 있음)
-* Design : 디자인 계층을 어떤 식으로 구성할 지 생각
+* `CSS` : 클래스 선택자를 무엇으로 만들지 생각(실제 컴포넌트는 좀 더 세분화 되어 있음)
+* `Design` : 디자인 계층을 어떤 식으로 구성할 지 생각
 
 * JSON이 잘 구조화 되어 있다면 종종 이것이 UI의 컴포넌트 구조가 자연스럽게 데이터 모델에 대응된다는 것을 발견할 수 있음
 * 이는 UI와 데이터 모델은 보통 같은 정보 아키텍처, 즉 같은 구조를 가지기 때문
 * UI를 컴포넌트로 분리하고 각 컴포넌트가 데이터 모델에 매칭될 수 있도록 설계
 * 아래의 5개 컴포넌트를 설계
 
-1. FilterableProductTable(회색) : 예시 전체를 포괄
-2. Searcher(파란색) : 사용자의 입력을 받음
-3. ProductTable(라벤더색) : 데이터 리스트를 보여주고, 사용자의 입력을 기반으로 필터링
-4. ProductCategoryRow(초록색) : 각 카테고리의 헤더를 보여줌
-5. ProductRow(노란색) : 각각의 제품에 해당하는 행을 보여줌 
+1. `FilterableProductTable`(회색) : 예시 전체를 포괄
+2. `Searcher`(파란색) : 사용자의 입력을 받음
+3. `ProductTable`(라벤더색) : 데이터 리스트를 보여주고, 사용자의 입력을 기반으로 필터링
+4. `ProductCategoryRow`(초록색) : 각 카테고리의 헤더를 보여줌
+5. `ProductRow`(노란색) : 각각의 제품에 해당하는 행을 보여줌 
 
 * ProductTable을 보면 `Name`과`Price` 레이블을 포함한 테이블 헤더 기능만을 가진 컴포넌트는 없음
 * 독립된 컴포넌트를 따로 생성할 지 생성하지 않을지는 만드는 사람의 선택
-* 예시에서는 `3.ProductTable`에 있는 단순한 헤더들이 ProductTable의 일부이기 때문에 위 레이블들을 컴포넌트로 만들지 않고 그냥 남겨둠
-* 그러나 이 헤더가 복잡해지면 (정렬을 위한 기능을 추가하는 등) ProductTableHeader 컴포넌트를 만드는 것이 더 합리적일 것
+* 예시에서는 `3.ProductTable`에 있는 단순한 헤더들이 `ProductTable`의 일부이기 때문에 위 레이블들을 컴포넌트로 만들지 않고 그냥 남겨둠
+* 그러나 이 헤더가 복잡해지면 (정렬을 위한 기능을 추가하는 등) `ProductTableHeader` 컴포넌트를 만드는 것이 더 합리적일 것
 * 모의 시안 내의 컴포넌트들을 확인했으니 계층 구조로 정리
 * 모의 시안에서 한 컴포넌트 내에 있는 다른 컴포넌트는 계층 구조에서 자식으로 표현
 
