@@ -1,5 +1,72 @@
 # 202130311 안상하 
 
+## 2025.05.15 11주차
+**Step.3 최소한의 데이터만 이용해서 완벽하게 UI State 표현하기**
+* 지난주 부터 이어지는 내용 
+1. 제품의 원본 목록은 `props`로 전달되었기 때문에 `state`가 아님
+2. 사용자가 입력한 검색어는 시간이 지남에 따라 변하고 다른 요소로부터 계산될 수 없기 때문에 `state`로 볼 수 있음
+3. 체크박스의 값은 시간에 따라 바뀌고 다른 요소로부터 계산될 수 없기 때문에 `state`로 볼 수 있음
+4. 필터링된 제품 목록은 원본 제품 목록을 받아서 검색어와 체크박스의 값에 따라 계산할 수 있으므로 이는 `state`가 아님
+* 따라서 검색어와 체크박스 값만이 `state`
+
+**Step.4 State가 어디에 있어야 할 지 결정하기**
+* 앱에서 최소로 필요한 `state` 결정 완료
+* 다음으로는 어떤 컴포넌트가 이 `state`를 소유하고 변경할 책임 지게 할 지 정해야 함
+* React는 항상 컴포넌트 계층구조를 따라 부모에서 자식으로 데이터를 전달하는 단방향 데이터 흐름을 사용하는 것을 기억
+* 앱을 구현하면서 어떤 컴포넌트가 `state`를 가져야 하는 지 바로 명확하지 않을 수 있음
+* 어떤 컴포넌트가 `state`를 가져야 하는지 결정할려면...
+  * 애플리케이션의 각 `state`에 대해
+  1. 해당 `state`를 기반으로 렌더링하는 모든 컴포넌트를 찾고
+  2. 가장 가까운 공통되는 부모 컴포넌트를 찾고(계층에서 모두를 포괄하는 상위 컴포넌트)
+  3. `state`가 어디에 위치 돼야 하는지 결정
+* `state`가 어디에 위치 돼야 하는지 결정할려면...
+  1. 대개, 공통 부모에 `state`를 그냥 두면 됨
+  2. 혹은, 공통 부모 상위의 컴포넌트에 둬도 됨
+  3. `state`를 소유할 적절한 컴포넌트를 찾지 못했다면, `state`를 소유하는 컴포넌트를 하나 만들어서 상위 계층에 추가
+  * 이전 단계에서 이 애플리케이션의 두 가지 `state`인 "사용자의 검색어 입력과 체크박스의 값"을 발견
+  * 이 예시에서 두 가지 `state`가 항상 함께 나타나기 때문에 같은 위치에 두는 것이 합리적  
+1. `state`를 쓰는 컴포넌트를 찾기
+  * `ProducTable`은 `state`에 기반한 상품 리스트를 필터링해야 함(검색어와 체크 박스의 값)
+  * `SearchBar`는 `state`를 표시해 주어야 함(검색어와 체크 박스의 값)
+2. 공통 부모를 찾기
+  * 둘 모두가 공유하는 첫 번째 부모는 `FilterableProductTable`
+3. 어디에 `state`가 존재해야 할지 정해보기
+  * `FilterableProductTable`에 검색어와 체크 박스 값을 `state`로 두기  
+* `state` 값은 `FilterableProductTable` 안에 존재
+* `useState()` `Hook`을 이용해서 `state`를 컴포넌트에 추가
+* `Hooks`는 React 기능에 "연결할 수(hook into)"있게 해주는 특별한 함수
+**State 선언**
+1. `FilterableProductTable`의 상단에 두 개의 `state`변수를 추가해서 초기값을 명확하게 보여주기
+~~~js
+//FilterableProductTable
+  function FilterableProductTable({ products }) {
+  const [filterText, setFilterText] = useState('');
+  const [inStockOnly, setInStockOnly] = useState(false);
+~~~
+
+2. 다음으로 `filterText`와 `inStockOnly`를 `ProductTable`와 `SearchBar`에게 `props`로 전달
+~~~js
+//FilterableProductTable
+return (
+    <div>
+      <SearchBar 
+        filterText={filterText}
+        inStockOnly={inStockOnly}/>
+      <ProductTable 
+        products={products}
+        filterText={filterText}
+        inStockOnly={inStockOnly} />
+    </div>
+  )
+~~~
+
+3. `ProductTable`의 `props`를 추가 -> `products` `filterText` `inStockOnly`
+4. `ProductTable`의 `forEach`문 수정
+~~~js
+//SearchBar
+  function SearchBar({filterText, inStockOnly}) {
+~~~
+
 ## 2025.05.08 10주차
 **React로 사고하기**  
   
