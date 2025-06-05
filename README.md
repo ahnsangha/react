@@ -1,8 +1,158 @@
 # 202130311 안상하 
 
+## 2025.06.05 14주차
+**기존 프로젝트에 React 추가**  
+**2단계: 페이지 어디에서든 React 컴포넌트 렌더링하기**
+* 이전 단계에서는 메인 파일 최상단에 아래 코드를 넣었음
+  ~~~js
+    import {createRoot} from "react-dom/client";
+
+    //기존 HTML 콘텐츠를 지움
+    document.body.innerHTML = '<div id="app"></div>';
+    //대신에 작성한 React 컴포넌트를 렌더링
+    const root = createRoot(document.getElementById('app'));
+    root.render(<h1>Hello, world</h1>);
+  ~~~
+* 실제로는 기존 HTML 콘텐츠를 지우고 싶지 않을 것
+* HTML 페이지를 열고(또는 이를 생성하는 서버 탬플릿) HTML 태그에 고유한 id 어트리뷰트를 추가
+  ~~~js
+    <!-- ... html의 어딘가 ... -->
+    <nav id="navigation"></nav>
+    <!-- ... 더 많은 html ... -->
+  ~~~
+* `document.getElementById`로 HTML 엘리먼트를 찾아 createRoot에 전달함으로써 해당 요소 내부에 React 컴포넌트를 렌더링할 수 있음
+  ~~~js
+    import { createRoot } from 'react-dom/client';
+
+    function NavigationBar() {
+      // TODO: 실제로 네비게이션 바를 구현합니다.
+      return <h1>Hello from React!</h1>;
+    }
+
+    const domNode = document.getElementById('navigation');
+    const root = createRoot(domNode);
+    root.render(<NavigationBar />);
+  ~~~
+* 기존에 존재하던 `index.html`의 원본 HTML 컨텐츠가 그대로 남아있는 것을 확인할 수 있음
+* 하지만 이제는 `<nav id="navigation">` 안에 직접 작성한 `NavigationBar React` 컴포넌트가 나타남
+* 기존 프로젝트에서 React를 도입할 때, 일반적으로 작은 상호작용 컴포넌트(예시: 버튼)에서 시작하여 점진적으로 “상위 구조로 확장하면서” 결국에는 전체 페이지가 React로 빌드될 때까지 이 과정을 반복하게 됨
+
+**에디터 설정하기**
+1. Linting
+* 코드 린터는 코드를 작성하는 동안 실시간으로 문제를 찾아 빠른 문제 해결을 도와줌
+* 자바스크립트를 위한 오픈 소스 린터인 `ESLint`를 가장 많이 사용
+2. Formatting
+* `Prettier`를 사용하면 직접 지정해 놓은 규칙들에 부합하도록 코드의 형식을 깔끔하게 정리할 수 있음
+* 모든 탭은 공백으로 전환될 뿐만 아니라 들여쓰기, 따옴표 형식과 같은 요소들이 전부 설정에 부합하도록 수정될 것
+* 다음과 같은 단계를 통해 VS Code의 Prettier 익스텐션을 설치할 수 있음
+  1. VS Code 실행하기
+  2. 퀵오픈 사용하기 (Ctrl/Cmd+P 누르기)
+  3. ext install esbenp.prettier-vscode라고 입력하기
+  4. 엔터 누르기
+**TypeScript 사용하기**
+* TypeScript는 JavaScript 코드 베이스에 타입 정의를 추가하는 데 널리 사용되는 방법
+* 기본적으로 TypeScript는 `JSX`를 지원하며, `@types/react` 및 `@types/react-dom`을 추가하면 완전한 React Web 지원을 받을 수 있음
+
+**기존 React 프로젝트에 TypeScript 추가하기**
+* 최신 버전의 React 타입 정의를 설치
+  ~~~
+    npm install @types/react @types/react-dom
+  ~~~
+* 다음 컴파일러 옵션을 tsconfig.json에 설정
+  1. dom은 lib에 포함되어야 함(주의: lib 옵션이 지정되지 않으면, 기본적으로 dom이 포함됨)
+  2. jsx를 유효한 옵션 중 하나로 설정해야 함 대부분의 애플리케이션에서는 `preserve`로 충분
+
+**React 컴포넌트가 있는 TypeScript**
+* React와 함께 TypeScript를 작성하는 것은 React와 함께 JavaScript를 작성하는 것과 매우 유사
+* 컴포넌트로 작업할 때 가장 중요한 차이점은 컴포넌트의 props에 타입을 제공할 수 있다는 점
+* 이러한 타입은 에디터에서 정확성을 검사하고 인라인 문서를 제공하는 데 사용할 수 있음
+* 빠르게 시작하기 가이드에서 가져온 `MyButton` 컴포넌트를 예로 들어 버튼의 `title`을 설명하는 타입을 추가할 수 있음
+  ~~~js
+    function MyButton({ title }: { title: string }) {
+      return (
+        <button>{title}</button>
+      );
+    }
+
+    export default function MyApp() {
+      return (
+        <div>
+          <h1>Welcome to my app</h1>
+          <MyButton title="I'm a button" />
+        </div>
+      );
+    }
+  ~~~
+* 인라인 문법은 컴포넌트에 타입을 제공하는 가장 간단한 방법이지만, 설명할 필드가 많아지기 시작하면 다루기 어려워질 수 있음
+* 대신, `interface`나 `type`을 사용하여 컴포넌트의 `props`를 설명할 수 있음
+  ~~~js
+    interface MyButtonProps {
+      /** 버튼 안에 보여질 텍스트 */
+      title: string;
+      /** 버튼이 상호작용할 수 있는지 여부 */
+      disabled: boolean;
+    }
+
+    function MyButton({ title, disabled }: MyButtonProps) {
+      return (
+        <button disabled={disabled}>{title}</button>
+      );
+    }
+
+    export default function MyApp() {
+      return (
+        <div>
+          <h1>Welcome to my app</h1>
+          <MyButton title="I'm a disabled button" disabled={true}/>
+        </div>
+      );
+    }
+  ~~~
+**useState**
+* useState hook은 초기 state로 전달된 값을 재사용하여 값의 타입을 결정
+~~~js
+//예를 들면
+// 타입을 "boolean"으로 추론합니다
+const [enabled, setEnabled] = useState(false);
+~~~
+
+* `boolean` 타입이 `enabled`에 할당되고, `setEnabled` 는 `boolean` 인수나 `boolean`을 반환하는 함수를 받는 함수가 됨
+* state에 대한 타입을 명시적으로 제공하려면 useState 호출에 타입 인수를 제공하면 됨
+~~~js
+// 명시적으로 타입을 "boolean"으로 설정합니다
+const [enabled, setEnabled] = useState<boolean>(false);
+~~~
+
+* 이 경우에는 그다지 유용하지 않지만, 타입 제공을 원하게 되는 일반적인 경우는 유니언 타입이 있는 경우
+* 예를 들어 여기서 status는 몇 가지 다른 문자열 중 하나일 수 있음
+~~~js
+  type Status = "idle" | "loading" | "success" | "error";
+  const [status, setStatus] = useState<Status>("idle");
+~~~
+
+* 또는 State 구조화 원칙에서 권장하는 대로, 관련 state를 객체로 그룹화하고 객체 타입을 통해 다른 가능성을 설명할 수 있음
+~~~js
+  type RequestState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success', data: any }
+  | { status: 'error', error: Error };
+
+  const [requestState, setRequestState] = useState<RequestState>({ status: 'idle' });
+~~~
+
+**GitHub Pages 기본 저장소란?**
+* GitHub Pages를 운영하려면 먼저 GitHub Pages 저장소를 생성
+* 생성 방법은 일반 저장소 생성과 동일하지만 저장소 이름은 도메인 형태로 해야 함
+* 또한 최상위 도메인 부분은 `.com`이 아니라 `.io`로 해야 함
+* GitHub에서 직접 저장소를 만들었다면 clone해서 local에서 작업하고 push
+* 처음부터 저장소를 local에서 만들었다면 그대로 push
+* 이 저장소는 GitHub에서 정적 호스팅을 하기 위해서는 반드시 필요한 저장소
+* 이후 다른 이름의 저장소도 페이지로 사용할 수 있음. 단 페이지로 사용할 저장소가 있다면 설정에서 페이지를 활성화 해야 함
+ 
 ## 2025.05.29 13주차
-**처음부터 React 앱 만들기**  
-2. 스트리밍 서버 측 렌더링(SSR)은 서버에서 페이지를 렌더링하고 완전히 렌더링된 페이지를 클라이언트로 전송합니다.  
+**처음부터 React 앱 만들기**     
+2. 스트리밍 서버 측 렌더링(SSR)은 서버에서 페이지를 렌더링하고 완전히 렌더링된 페이지를 클라이언트로 전송합니다.     
 * SSR은 성능을 향상시킬 수 있지만 단일 페이지 앱보다 설정 및 유지 관리가 더 복잡할 수 있습니다.
 * 특히 스트리밍 기능이 추가되면 SSR은 설정 및 유지 관리가 매우 복잡해질 수 있습니다.
 * vite SSR 가이드 참조   
@@ -45,6 +195,7 @@
 * 두 가지 단계로 수행함
   1. JSX 구문을 사용할 수 있게 자바스크립트 환경을 설정하고 import/export 구문을 통해 코드를 모듈로 분리한 다음 npm 패키지 레지스트리의 패키지(예시: React)를 사용
   2. 해당 페이지에서 원하는 위치에 React 컴포넌트를 렌더링
+    
 **1단계: 모듈 자바스크립트 환경 설정하기**
 * 모듈 자바스크립트 환경은 모든 코드를 한 파일에 작성하는 것이 아닌, 각각의 React 컴포넌트를 개별 파일로 작성할 수 있게 함
 * 또한 (React 자체를 포함한) 다른 개발자들이 npm 레지스트리에 배포한 훌륭한 패키지들을 모두 사용할 수 있음
