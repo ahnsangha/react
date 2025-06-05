@@ -149,7 +149,15 @@ const [enabled, setEnabled] = useState<boolean>(false);
 * 처음부터 저장소를 local에서 만들었다면 그대로 push
 * 이 저장소는 GitHub에서 정적 호스팅을 하기 위해서는 반드시 필요한 저장소
 * 이후 다른 이름의 저장소도 페이지로 사용할 수 있음. 단 페이지로 사용할 저장소가 있다면 설정에서 페이지를 활성화 해야 함
- 
+
+**배포할 프로젝트 저장소 생성**
+* Working directory에 프로젝트를 새로 만들고 README.md를 간단히 수정
+* 프로젝트를 GitHub로 push, 저장소는 pubilc으로 해야 함
+* GitHub에서 프로젝트 저장소에서 Settings > Pages의 None를 클릭
+* Select branch에서 main(master)를 선택하고 저장
+* 1~2분 후에 `<id>.github.io/<Repo-name>`으로 접속하면 README를 확인할 수 있음
+* 프로젝트 build를 하기 전이기 때문에 README만 확인할 수 있음 
+
 ## 2025.05.29 13주차
 **처음부터 React 앱 만들기**     
 2. 스트리밍 서버 측 렌더링(SSR)은 서버에서 페이지를 렌더링하고 완전히 렌더링된 페이지를 클라이언트로 전송합니다.     
